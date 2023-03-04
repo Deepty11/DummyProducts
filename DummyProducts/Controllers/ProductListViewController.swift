@@ -95,8 +95,23 @@ extension ProductsListViewController: UITableViewDelegate, UITableViewDataSource
         if let cell  =  tableView.dequeueReusableCell(withIdentifier: ProductTableViewCell.identifier, for: indexPath) as? ProductTableViewCell {
             cell.titleLabel.text = products[indexPath.row].title
             cell.priceLabel.text = String(products[indexPath.row].price)
-            cell.productImageView.image = UIImage(named: "thumbnail")
+            guard let imgURL = URL(string: products[indexPath.row].thumbnail) else { return UITableViewCell() }
+            
+                DispatchQueue.global().async {
+                    do {
+                        let imgData = try Data(contentsOf: imgURL)
+                        
+                        DispatchQueue.main.async {
+                            cell.productImageView.image = UIImage(data: imgData)
+                        }
+                        
+                    } catch {
+                        print(error.localizedDescription)
+                    }
+                }
 
+            
+            
             return cell
         }
 

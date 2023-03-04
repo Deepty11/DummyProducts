@@ -8,7 +8,6 @@
 import Foundation
 
 final class APIService {
-    static let baseURL = URL(string: "https://api.instantwebtools.net/v1/airlines")
     static let productsBaseURL = URL(string: "https://dummyjson.com/products")
     
     
