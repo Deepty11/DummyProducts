@@ -25,6 +25,8 @@ class ProductsListViewController: UIViewController {
     }()
 
     var products = [ProductModel]()
+    var productImageURLS = [String]()
+    var productImages = [String : UIImage]()
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -42,6 +44,10 @@ class ProductsListViewController: UIViewController {
 
         Task.init {
             self.products = try await APIService.getProducts(url: APIService.productsBaseURL)
+            
+            let _ = self.products.map { self.productImageURLS.append($0.thumbnail) }
+            
+            self.productImages = try await APIService.getImages(urlStrings: productImageURLS)
 
             self.tableView.reloadData()
             self.activityIndicator.stopAnimating()
@@ -95,22 +101,7 @@ extension ProductsListViewController: UITableViewDelegate, UITableViewDataSource
         if let cell  =  tableView.dequeueReusableCell(withIdentifier: ProductTableViewCell.identifier, for: indexPath) as? ProductTableViewCell {
             cell.titleLabel.text = products[indexPath.row].title
             cell.priceLabel.text = String(products[indexPath.row].price)
-            guard let imgURL = URL(string: products[indexPath.row].thumbnail) else { return UITableViewCell() }
-            
-                DispatchQueue.global().async {
-                    do {
-                        let imgData = try Data(contentsOf: imgURL)
-                        
-                        DispatchQueue.main.async {
-                            cell.productImageView.image = UIImage(data: imgData)
-                        }
-                        
-                    } catch {
-                        print(error.localizedDescription)
-                    }
-                }
-
-            
+            cell.productImageView.image = productImages[products[indexPath.row].thumbnail]
             
             return cell
         }
