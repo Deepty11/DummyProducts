@@ -21,7 +21,9 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         let vc = ProductsListViewController()
         window = UIWindow(frame: windowScene.screen.bounds)
         window?.windowScene = windowScene
-        window?.rootViewController = vc
+        window?.rootViewController = UINavigationController(rootViewController: vc)
+        UINavigationController().navigationBar.barStyle = .black
+        UINavigationController().navigationBar.isTranslucent = true
         window?.makeKeyAndVisible()
         
     }

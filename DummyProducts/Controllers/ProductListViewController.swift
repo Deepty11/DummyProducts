@@ -12,6 +12,8 @@ class ProductsListViewController: UIViewController {
         let tableView = UITableView()
         tableView.register(UINib(nibName: "ProductTableViewCell", bundle: nil),
                            forCellReuseIdentifier: ProductTableViewCell.identifier)
+        tableView.register(UINib(nibName: "UserTableViewCell", bundle: nil),
+                           forCellReuseIdentifier: UserTableViewCell.identifier)
         tableView.rowHeight = UITableView.automaticDimension
 
         return tableView
@@ -28,6 +30,10 @@ class ProductsListViewController: UIViewController {
     var productImageURLS = [String]()
     var productImages = [String : UIImage]()
     
+    var users = [UserModel]()
+    var userImageURLS = [String]()
+    var userImages = [String : UIImage]()
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         
@@ -43,12 +49,39 @@ class ProductsListViewController: UIViewController {
         addActivityIndicatorConstraints()
 
         Task.init {
-            self.products = try await APIService.getProducts(url: APIService.productsBaseURL)
+            if let productList = try await APIService.getData(
+                url: APIService.productsBaseURL,
+                dataType: ProductList.self) {
+                self.products = productList.products
+                
+                let _ = self.products.map {  APIService.productsThumbnailImageURLDictionary[$0.id] = $0.thumbnail
+                }
+                
+                let _ = self.products.map { self.productImageURLS.append($0.thumbnail) }
+                
+                self.productImages = try await APIService.getImages(urlStrings: productImageURLS)
+                
+            }
             
-            let _ = self.products.map { self.productImageURLS.append($0.thumbnail) }
+            self.tableView.reloadData()
+            self.activityIndicator.stopAnimating()
+        }
+        
+        Task {
+            if let usersList = try await APIService.getData(
+                url: APIService.usersBaseURL,
+                dataType: UserList.self) {
+                self.users = usersList.users
+                
+                let _ = self.users.map {  APIService.usersThumbnailImageURLDictionary[$0.id] = $0.image
+                }
+                
+                let _ = self.users.map { self.userImageURLS.append($0.image) }
+                
+                self.userImages = try await APIService.getImages(urlStrings: userImageURLS)
+                
+            }
             
-            self.productImages = try await APIService.getImages(urlStrings: productImageURLS)
-
             self.tableView.reloadData()
             self.activityIndicator.stopAnimating()
         }
@@ -93,11 +126,40 @@ class ProductsListViewController: UIViewController {
 //MARK: - TableView Delegate
 
 extension ProductsListViewController: UITableViewDelegate, UITableViewDataSource {
+    func numberOfSections(in tableView: UITableView) -> Int { 2 }
+    
+    func tableView(_ tableView: UITableView, titleForHeaderInSection section: Int) -> String? {
+        section == 0 ? "USERS" : "PRODUCTS"
+    }
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        products.count
+        if section == 0 {
+            return users.count
+        }
+        
+        return products.count
     }
 
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
+        if indexPath.section == 0 {
+            return prepareCellForUser(for: indexPath)
+        }
+        
+        return prepareCellForProduct(for: indexPath)
+    }
+    
+    func prepareCellForUser(for indexPath: IndexPath) -> UserTableViewCell {
+        if let cell = tableView.dequeueReusableCell(withIdentifier: UserTableViewCell.identifier, for: indexPath) as? UserTableViewCell {
+            cell.nameLabel.text = "\(users[indexPath.row].fullName) , \(users[indexPath.row].age)"
+            cell.userImageView?.image = userImages[users[indexPath.row].image]
+            cell.genderLabel.text = users[indexPath.row].gender
+            
+            return cell
+        }
+        
+        return UserTableViewCell()
+    }
+    
+    func prepareCellForProduct(for indexPath: IndexPath) -> ProductTableViewCell {
         if let cell  =  tableView.dequeueReusableCell(withIdentifier: ProductTableViewCell.identifier, for: indexPath) as? ProductTableViewCell {
             cell.titleLabel.text = products[indexPath.row].title
             cell.priceLabel.text = String(products[indexPath.row].price)
@@ -105,8 +167,8 @@ extension ProductsListViewController: UITableViewDelegate, UITableViewDataSource
             
             return cell
         }
-
-        return UITableViewCell()
+        
+        return ProductTableViewCell()
+        
     }
-    
 }

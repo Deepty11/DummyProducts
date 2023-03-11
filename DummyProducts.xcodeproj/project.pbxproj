@@ -7,6 +7,9 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		FD0CEB5C29BB7936004637DD /* UserModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = FD0CEB5B29BB7936004637DD /* UserModel.swift */; };
+		FD14BFD629BC666900C030EF /* UserTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = FD14BFD429BC666900C030EF /* UserTableViewCell.swift */; };
+		FD14BFD729BC666900C030EF /* UserTableViewCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = FD14BFD529BC666900C030EF /* UserTableViewCell.xib */; };
 		FDE753F929B1E71000895C39 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = FDE753F829B1E71000895C39 /* AppDelegate.swift */; };
 		FDE753FB29B1E71000895C39 /* SceneDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = FDE753FA29B1E71000895C39 /* SceneDelegate.swift */; };
 		FDE7540229B1E71100895C39 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = FDE7540129B1E71100895C39 /* Assets.xcassets */; };
@@ -19,6 +22,9 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		FD0CEB5B29BB7936004637DD /* UserModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserModel.swift; sourceTree = "<group>"; };
+		FD14BFD429BC666900C030EF /* UserTableViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserTableViewCell.swift; sourceTree = "<group>"; };
+		FD14BFD529BC666900C030EF /* UserTableViewCell.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = UserTableViewCell.xib; sourceTree = "<group>"; };
 		FDE753F529B1E71000895C39 /* DummyProducts.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = DummyProducts.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		FDE753F829B1E71000895C39 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		FDE753FA29B1E71000895C39 /* SceneDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SceneDelegate.swift; sourceTree = "<group>"; };
@@ -88,6 +94,8 @@
 			children = (
 				FDE7541229B1EA2800895C39 /* ProductTableViewCell.swift */,
 				FDE7541129B1EA2800895C39 /* ProductTableViewCell.xib */,
+				FD14BFD429BC666900C030EF /* UserTableViewCell.swift */,
+				FD14BFD529BC666900C030EF /* UserTableViewCell.xib */,
 			);
 			path = Cells;
 			sourceTree = "<group>";
@@ -96,6 +104,7 @@
 			isa = PBXGroup;
 			children = (
 				FDE7541629B1EA5600895C39 /* ProductModel.swift */,
+				FD0CEB5B29BB7936004637DD /* UserModel.swift */,
 			);
 			path = Models;
 			sourceTree = "<group>";
@@ -166,6 +175,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				FD14BFD729BC666900C030EF /* UserTableViewCell.xib in Resources */,
 				FDE7540529B1E71100895C39 /* LaunchScreen.storyboard in Resources */,
 				FDE7541329B1EA2800895C39 /* ProductTableViewCell.xib in Resources */,
 				FDE7540229B1E71100895C39 /* Assets.xcassets in Resources */,
@@ -180,8 +190,10 @@
 			buildActionMask = 2147483647;
 			files = (
 				FDE753F929B1E71000895C39 /* AppDelegate.swift in Sources */,
+				FD0CEB5C29BB7936004637DD /* UserModel.swift in Sources */,
 				FDE7541429B1EA2800895C39 /* ProductTableViewCell.swift in Sources */,
 				FDE7540E29B1E7F900895C39 /* ProductListViewController.swift in Sources */,
+				FD14BFD629BC666900C030EF /* UserTableViewCell.swift in Sources */,
 				FDE753FB29B1E71000895C39 /* SceneDelegate.swift in Sources */,
 				FDE7541A29B1EA7400895C39 /* APIService.swift in Sources */,
 				FDE7541729B1EA5600895C39 /* ProductModel.swift in Sources */,

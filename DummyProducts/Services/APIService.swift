@@ -10,46 +10,32 @@ import UIKit
 
 final class APIService {
     static let productsBaseURL = URL(string: "https://dummyjson.com/products")
-    static var productsThumbnailImageURLDictionary = [Int : String]()
+    static let usersBaseURL = URL(string: "https://dummyjson.com/users")
     
-    // MARK: Products
-    static func getProducts(url: URL?) async throws -> [ProductModel] {
-        guard let url = url else { return [] }
-        
+    static var productsThumbnailImageURLDictionary = [Int : String]()
+    static var usersThumbnailImageURLDictionary = [Int : String]()
+    
+    
+    static func getData <T: Decodable>(url: URL?, dataType: T.Type) async throws -> T? {
+        guard let url = url else { return nil }
         do {
             let (data, _) =  try await URLSession.shared.data(from: url)
             
-            let parsedData = try JSONDecoder().decode(ProductList.self,
+            let parsedData = try JSONDecoder().decode(T.self,
                                                       from: data)
             
-            let _ =  parsedData.products.map {
-                productsThumbnailImageURLDictionary[$0.id] = $0.thumbnail
-            }
-            
-            return parsedData.products
+            return parsedData
             
         } catch {
             print(error.localizedDescription)
         }
         
-        return []
+        return nil
     }
     
     static func getImages(urlStrings: [String]) async throws -> [String : UIImage] {
         var thumbnails: [String: UIImage] = [ : ]
         
-        //1. ForEach
-//        urlStrings.forEach { urlString in
-//            guard let url = URL(string: urlString) else { }
-//
-//            let (data, _) = try await URLSession.shared.data(from: url)
-//
-//            let image = UIImage(data: data)
-//
-//            thumbnails[urlString] = image
-//        }
-        
-        //2. For loop
         for urlString in urlStrings {
             guard let url = URL(string: urlString) else { return [ : ] }
             
