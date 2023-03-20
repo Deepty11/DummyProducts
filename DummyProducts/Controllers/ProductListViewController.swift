@@ -37,7 +37,7 @@ class ProductsListViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        navigationItem.title = "Products"
+        navigationItem.title = "Dummy Data"
         view.addSubview(tableView)
         view.addSubview(activityIndicator)
         activityIndicator.startAnimating()
@@ -48,51 +48,37 @@ class ProductsListViewController: UIViewController {
         addTableViewConstraints()
         addActivityIndicatorConstraints()
 
-        Task.init {
-            if let productList = try await APIService.getData(
-                url: APIService.productsBaseURL,
-                dataType: ProductList.self) {
-                self.products = productList.products
-                
-                let _ = self.products.map {  APIService.productsThumbnailImageURLDictionary[$0.id] = $0.thumbnail
-                }
-                
-                let _ = self.products.map { self.productImageURLS.append($0.thumbnail) }
-                
-                self.productImages = try await APIService.getImages(urlStrings: productImageURLS)
-                
-            }
-            
-            self.tableView.reloadData()
-            self.activityIndicator.stopAnimating()
-        }
-        
         Task {
-            if let usersList = try await APIService.getData(
-                url: APIService.usersBaseURL,
-                dataType: UserList.self) {
-                self.users = usersList.users
-                
-                let _ = self.users.map {  APIService.usersThumbnailImageURLDictionary[$0.id] = $0.image
-                }
-                
-                let _ = self.users.map { self.userImageURLS.append($0.image) }
-                
-                self.userImages = try await APIService.getImages(urlStrings: userImageURLS)
-                
+            async let productList = APIService.getData(url: APIService.productsBaseURL,
+                                                       dataType: ProductList.self)
+            
+            async let usersList = APIService.getData(url: APIService.usersBaseURL,
+                                                     dataType: UserList.self)
+            
+            guard let usersList = try await usersList else { return }
+            guard let productList = try await productList else { return }
+            
+            self.products =  productList.products
+            self.users =  usersList.users
+            
+            let _ = self.products.map {  APIService.productsThumbnailImageURLDictionary[$0.id] = $0.thumbnail
             }
+            
+            let _ = self.products.map { self.productImageURLS.append($0.thumbnail) }
+            
+            self.productImages = try await APIService.getImages(from: productImageURLS)
+            
+            let _ = self.users.map {  APIService.usersThumbnailImageURLDictionary[$0.id] = $0.image
+            }
+            
+            let _ = self.users.map { self.userImageURLS.append($0.image) }
+            
+            self.userImages = try await APIService.getImages(from: userImageURLS)
             
             self.tableView.reloadData()
             self.activityIndicator.stopAnimating()
         }
-    }
     
-    func setNavigationBarItems() {
-        let navBar = UINavigationBar(frame: CGRect(x: 0,
-                                                   y: 0,
-                                                   width: UIScreen.main.bounds.width,
-                                                   height: 44))
-        
     }
     
     func addTableViewConstraints() {

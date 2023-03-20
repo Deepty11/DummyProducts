@@ -15,14 +15,13 @@ final class APIService {
     static var productsThumbnailImageURLDictionary = [Int : String]()
     static var usersThumbnailImageURLDictionary = [Int : String]()
     
-    
     static func getData <T: Decodable>(url: URL?, dataType: T.Type) async throws -> T? {
         guard let url = url else { return nil }
         do {
+            print("Started \(dataType)")
             let (data, _) =  try await URLSession.shared.data(from: url)
             
-            let parsedData = try JSONDecoder().decode(T.self,
-                                                      from: data)
+            let parsedData = try JSONDecoder().decode(T.self, from: data)
             
             return parsedData
             
@@ -33,21 +32,27 @@ final class APIService {
         return nil
     }
     
-    static func getImages(urlStrings: [String]) async throws -> [String : UIImage] {
+    static func getImages(from urlStrings: [String]) async throws -> [String : UIImage] {
         var thumbnails: [String: UIImage] = [ : ]
         
         for urlString in urlStrings {
-            guard let url = URL(string: urlString) else { return [ : ] }
+            async let image = try getImage(from: urlString)
             
-            let (data, _) = try await URLSession.shared.data(from: url)
-            
-            let image = UIImage(data: data)
-            
-            thumbnails[urlString] = image
+            thumbnails[urlString] = try await image
             
         }
         
         return thumbnails
+        
+    }
+    
+    
+    static func getImage(from urlString: String) async throws -> UIImage? {
+        guard let url = URL(string: urlString) else { return UIImage()}
+        
+        let (data, _) = try await URLSession.shared.data(from: url)
+        
+        return  UIImage(data: data)
         
     }
 
