@@ -7,7 +7,7 @@
 
 import UIKit
 
-class ProductsListViewController: UIViewController {
+class DummyDataListViewController: UIViewController {
     var tableView: UITableView = {
         let tableView = UITableView()
         tableView.register(UINib(nibName: "ProductTableViewCell", bundle: nil),
@@ -33,6 +33,7 @@ class ProductsListViewController: UIViewController {
     var users = [UserModel]()
     var userImageURLS = [String]()
     var userImages = [String : UIImage]()
+    let group = DispatchGroup()
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -47,34 +48,16 @@ class ProductsListViewController: UIViewController {
 
         addTableViewConstraints()
         addActivityIndicatorConstraints()
-
-        Task {
-            async let productList = APIService.getData(url: APIService.productsBaseURL,
-                                                       dataType: ProductList.self)
-            
-            async let usersList = APIService.getData(url: APIService.usersBaseURL,
-                                                     dataType: UserList.self)
-            
-            guard let usersList = try await usersList else { return }
-            guard let productList = try await productList else { return }
-            
-            self.products =  productList.products
-            self.users =  usersList.users
-            
-            let _ = self.products.map {  APIService.productsThumbnailImageURLDictionary[$0.id] = $0.thumbnail
-            }
-            
-            self.productImages = try await APIService.getImages(from: Array(APIService.productsThumbnailImageURLDictionary.values))
-            
-            let _ = self.users.map {  APIService.usersThumbnailImageURLDictionary[$0.id] = $0.image
-            }
-            
-            self.userImages = try await APIService.getImages(from: Array(APIService.usersThumbnailImageURLDictionary.values))
-            
+        
+        fetchUsers()
+        fetchProducts()
+        
+        group.notify(queue: .main) { [weak self] in
+            guard let self else { return }
             self.tableView.reloadData()
             self.activityIndicator.stopAnimating()
         }
-    
+
     }
     
     func addTableViewConstraints() {
@@ -101,13 +84,52 @@ class ProductsListViewController: UIViewController {
         ])
     }
     
+    func fetchUsers() {
+        group.enter()
+        Task {
+            async let usersList = APIService.getData(url: APIService.usersBaseURL,
+                                                     dataType: UserList.self)
+            
+            guard let usersList = try await usersList else { return }
+            
+            self.users =  usersList.users
+            
+            for user in users {
+                APIService.usersThumbnailImageURLDictionary[user.id] = user.image
+            }
+            
+            self.userImages = try await APIService.getImages(from: Array(APIService.usersThumbnailImageURLDictionary.values))
+            
+            group.leave()
+        }
+    }
+    
+    func fetchProducts() {
+        group.enter()
+        Task {
+            async let productList = APIService.getData(url: APIService.productsBaseURL,
+                                                       dataType: ProductList.self)
+            
+            guard let productList = try await productList else { return }
+            
+            self.products =  productList.products
+            
+            for product in products {
+                APIService.productsThumbnailImageURLDictionary[product.id] = product.thumbnail
+            }
+            
+            self.productImages = try await APIService.getImages(from: Array(APIService.productsThumbnailImageURLDictionary.values))
+            
+            group.leave()
+        }
+    }
 
 }
 
 
 //MARK: - TableView Delegate
 
-extension ProductsListViewController: UITableViewDelegate, UITableViewDataSource {
+extension DummyDataListViewController: UITableViewDelegate, UITableViewDataSource {
     func numberOfSections(in tableView: UITableView) -> Int { 2 }
     
     func tableView(_ tableView: UITableView, titleForHeaderInSection section: Int) -> String? {
