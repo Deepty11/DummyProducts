@@ -64,16 +64,12 @@ class ProductsListViewController: UIViewController {
             let _ = self.products.map {  APIService.productsThumbnailImageURLDictionary[$0.id] = $0.thumbnail
             }
             
-            let _ = self.products.map { self.productImageURLS.append($0.thumbnail) }
-            
-            self.productImages = try await APIService.getImages(from: productImageURLS)
+            self.productImages = try await APIService.getImages(from: Array(APIService.productsThumbnailImageURLDictionary.values))
             
             let _ = self.users.map {  APIService.usersThumbnailImageURLDictionary[$0.id] = $0.image
             }
             
-            let _ = self.users.map { self.userImageURLS.append($0.image) }
-            
-            self.userImages = try await APIService.getImages(from: userImageURLS)
+            self.userImages = try await APIService.getImages(from: Array(APIService.usersThumbnailImageURLDictionary.values))
             
             self.tableView.reloadData()
             self.activityIndicator.stopAnimating()
